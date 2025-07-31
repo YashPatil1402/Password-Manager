@@ -21,5 +21,5 @@ No third-party servers — your data is stored safely in your own Google Sheet.
 
 ## 💡 How It Works
 
-
+![Preview](working/1.png)
 
