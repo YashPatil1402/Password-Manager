@@ -22,7 +22,7 @@ No third-party servers — your data is stored safely in your own Google Sheet.
 ## 💡 How It Works
 ## 🖼️ Preview
 
-<p align="center">
+<p align="left">
   <img src="working/1.png" alt="Password Manager Preview" width="500"/>
 </p>
 
