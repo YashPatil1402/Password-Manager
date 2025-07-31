@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f9f9fb;
+        padding: 20px;
+        margin: 0;
+        max-width: 600px;
+        margin: auto;
+      }
+
+      h2, h3 {
+        text-align: center;
+        color: #333;
+      }
+
+      .card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+      }
+
+      input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+      }
+
+      input:focus {
+        border-color: #005eff;
+        outline: none;
+      }
+
+      button {
+        background: #005eff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #0045c6;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      table, th, td {
+        border: 1px solid #ddd;
+      }
+
+      th {
+        background: #f0f0f0;
+      }
+
+      th, td {
+        padding: 10px;
+        text-align: left;
+        word-break: break-all;
+      }
+
+      .toggle-icon {
+        cursor: pointer;
+        margin-left: -30px;
+        position: relative;
+        top: -34px;
+        float: right;
+        margin-right: 10px;
+        color: #888;
+      }
+
+      @media screen and (max-width: 600px) {
+        input, button {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>🔐 Personal Password Manager</h2>
+
+    <div id="auth-section" class="card">
+      <input type="password" id="authPass" placeholder="Enter Access Password" />
+      <button onclick="authorize()">Login</button>
+    </div>
+
+    <div id="main-section" class="card hidden">
+      <h3>➕ Add New Credential</h3>
+      <input type="text" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <span class="toggle-icon" onclick="togglePassword()">👁️</span>
+      <button onclick="save()">Save</button>
+    </div>
+
+    <div id="main-table" class="card hidden">
+      <h3>📄 Saved Credentials</h3>
+      <button onclick="loadData()">🔄 Refresh</button>
+      <table id="dataTable">
+        <thead>
+          <tr><th>Email</th><th>Password</th><th>Saved On</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <script>
+      let authPass = "";
+      let showPass = false;
+
+      function authorize() {
+        authPass = document.getElementById("authPass").value;
+        if (!authPass) return alert("⚠️ Enter the access password.");
+
+        google.script.run.withSuccessHandler(function(result) {
+          if (result === true) {
+            document.getElementById("auth-section").classList.add("hidden");
+            document.getElementById("main-section").classList.remove("hidden");
+            document.getElementById("main-table").classList.remove("hidden");
+            loadData();
+          } else {
+            alert("❌ Access Denied.");
+          }
+        }).checkAuth(authPass);
+      }
+
+      function save() {
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("password").value.trim();
+
+        if (!email || !pass) {
+          alert("⚠️ Please fill in both fields.");
+          return;
+        }
+
+        google.script.run.withSuccessHandler(function(response) {
+          alert(response);
+          document.getElementById("email").value = "";
+          document.getElementById("password").value = "";
+          loadData();
+        }).saveData(authPass, email, pass);
+      }
+
+      function loadData() {
+        google.script.run.withSuccessHandler(function(data) {
+          const tbody = document.querySelector("#dataTable tbody");
+          tbody.innerHTML = "";
+
+          data.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>`;
+            tbody.appendChild(tr);
+          });
+        }).getData(authPass);
+      }
+
+      function togglePassword() {
+        const passInput = document.getElementById("password");
+        showPass = !showPass;
+        passInput.type = showPass ? "text" : "password";
+      }
+    </script>
+  </body>
+</html>
