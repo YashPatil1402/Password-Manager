@@ -1,0 +1,34 @@
+const AUTH_PASSWORD = "your password";
+const SHEET_ID = "sheet id (url) ";
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile("index");
+}
+
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+function checkAuth(password) {
+  return password === AUTH_PASSWORD;
+}
+
+function saveData(password, email, pass) {
+  if (password !== AUTH_PASSWORD) return "Unauthorized";
+
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+    sheet.appendRow([email, pass, new Date()]);
+    return " Saved Successfully!";
+  } catch (e) {
+    return " Error: " + e.toString();
+  }
+}
+
+function getData(password) {
+  if (password !== AUTH_PASSWORD) return "Unauthorized";
+
+  const sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+  return data.slice(1);
+}
